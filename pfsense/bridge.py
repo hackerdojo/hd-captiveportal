@@ -13,11 +13,14 @@ class RadiusServer(server.Server):
         reply=self.CreateReplyPacket(pkt)
         try:
             resp = urllib2.urlopen('http://hd-wifi.appspot.com/api/mac/%s' % mac_address)
-            print "success"
+            user, download, upload = resp.read().split(',')
+            reply.AddAttribute((14122,8), download) # WISPr-Bandwidth-Max-Down
+            reply.AddAttribute((14122,7), upload) # WISPr-Bandwidth-Max-Up
             reply.code=packet.AccessAccept
+            print "success"
         except:
-            print "fail"
             reply.code=packet.AccessReject
+            print "fail"
         self.SendReplyPacket(pkt.fd, reply)
 
 

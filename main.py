@@ -10,6 +10,10 @@ import base64
 import urllib
 
 DOMAIN = 'hackerdojo.com'
+MEMBER_DOWNLOAD = 0
+MEMBER_UPLOAD = 0
+GUEST_DOWNLOAD = 1024
+GUEST_UPLOAD = 384
 
 # Hacker Dojo Domain API helper with caching
 def dojo(path, force=False):
@@ -71,7 +75,7 @@ class MacHandler(webapp.RequestHandler):
             self.error(404)
             self.response.out.write("not found")
         else:
-            self.response.out.write(mapping.username)
+            self.response.out.write("%s,%s,%s" % (mapping.username, MEMBER_DOWNLOAD, MEMBER_UPLOAD))
         
 
 def main():
