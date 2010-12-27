@@ -70,15 +70,6 @@ class MacAddressMapping(db.Model):
     def get_by_mac(cls, address):
         return cls.all().filter('address =', address).get()
 
-class StatHandler(webapp.RequestHandler):
-    def get(self, name=None):
-        if name in ['members', 'guests']:
-            stat = get_stat(name)
-        else:
-            members = get_stat('members')
-            guests = get_stat('guests')
-            stat = members+guests
-        self.response.out.write(str(stat))
 
 class EntryHandler(webapp.RequestHandler):
     """ Entry point for the wifi app
@@ -148,13 +139,25 @@ class MacHandler(webapp.RequestHandler):
                 self.error(404)
                 self.response.out.write("not found")
 
+class StatHandler(webapp.RequestHandler):
+    """ Simple endpoint for getting current members/guests using Internet """
+    
+    def get(self, name=None):
+        if name in ['members', 'guests']:
+            stat = get_stat(name)
+        else:
+            members = get_stat('members')
+            guests = get_stat('guests')
+            stat = members+guests
+        self.response.out.write(str(stat))
+
 
 def main():
     application = webapp.WSGIApplication([
         ('/api/mac/(.+)', MacHandler),
+        ('/api/stat/(.+)', StatHandler),
         ('/guest', GuestHandler),
         ('/member', MemberHandler),
-        ('/stat/(.+)', StatHandler),
         ('/(.+)', EntryHandler),] ,debug=True)
     util.run_wsgi_app(application)
 
