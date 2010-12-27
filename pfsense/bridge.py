@@ -32,8 +32,8 @@ class RadiusServer(server.Server):
                 member_cache[mac_address] = user
             reply.code=packet.AccessAccept
             print "success: %s %s %s %s" % (mac_address, user, download, upload)
-        except urllib2.HTTPError, e:
-            if e.getcode() == 404:
+        except (urllib2.URLError, urllib2.HTTPError), e:
+            if hasattr(e, 'getcode') and e.getcode() == 404:
                 reply.code=packet.AccessReject
                 print "fail: %s" % mac_address
             else:
