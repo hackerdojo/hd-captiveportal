@@ -1,0 +1,27 @@
+body { font-family: Verdana,Arial,sans-serif; }
+#wrapper { margin-left: auto; margin-right: auto; width: 700px; }
+
+.note { font-size: x-small; color: ##444;}
+
+#header { margin-left: auto; margin-right: auto; width: 500px; height: 125px;}
+#header img { margin-right: 10px;}
+#header h1 { font-size: 42px; margin-top: 20px; padding-top: 10px; margin-bottom: 0px; padding-bottom: 0px;}
+#header h2 { font-size: x-large; margin: 0px; }
+
+.step span { color: white; background-color: #b10026; padding: 1px; padding-left: 4px; padding-right: 4px;}
+.step.inactive span { background-color: gray;}
+.step.inactive { color: gray; }
+
+h4 { margin-bottom: 0px; padding-left: 50px;}
+
+
+table .label { text-align: right; font-size: smaller;}
+
+form div { margin-top: 10px; }
+
+h3 { margin-top: 0px;}
+
+.notice { background-color: lightyellow; border: 1px solid yellow; padding: 10px; font-size: smaller;}
+
+#member { width: 30%; float: right; background-color: #ddf8cc; border: 1px solid #80C65A; padding: 10px;}
+#guest { width: 65%;}

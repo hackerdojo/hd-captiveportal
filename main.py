@@ -76,7 +76,7 @@ class EntryHandler(webapp.RequestHandler):
 class MemberHandler(webapp.RequestHandler):
     """ Form handler when connecting as a member """
     
-    def post(self, data):
+    def post(self):
         client = AppsService(domain=DOMAIN)
         username = self.request.get('username')
         mac = self.request.get('mac')
@@ -93,7 +93,7 @@ class MemberHandler(webapp.RequestHandler):
             else:
                 raise Exception("Invalid account")
         except Exception, e:
-            self.redirect('/%s?error=%s' % (base64.b64encode(','.join([mac, redirect])), e.message)
+            self.redirect('/%s?error=%s' % (base64.b64encode(','.join([mac, redirect])), e.message))
 
 class GuestHandler(webapp.RequestHandler):
     """ Form handler when connecting as a guest """
