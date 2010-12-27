@@ -8,6 +8,7 @@ from gdata.apps.service import AppsService
 import logging
 import base64
 import urllib
+import time
 
 DOMAIN = 'hackerdojo.com'
 MEMBER_DOWNLOAD = 0
@@ -36,6 +37,23 @@ def is_suspended(user):
     """ Convenience function for if a user is suspended """
     return dojo('/users/%s' % user)['suspended']
 
+def touch_stat(name, resolution=60):
+    """ Keeps a backlog of counts for calculating rate """
+    bucket = '%s-%s' % (name, int(time.time()) - int(time.time()) % resolution)
+    if not memcache.add(bucket, 0, time=resolution*5):
+        memcache.incr(bucket)
+
+def get_stat(name, resolution=60):
+    """ Calculate running average of a stat from counts """
+    since = time.time() - (resolution*5)
+    since = int(since) - int(since) % resolution
+    keys = ['%s-%s' % (name, since + (i * resolution)) for i in range(5-1)]
+    counts = memcache.get_multi(keys).values()
+    if len(counts):
+        return sum(counts) / len(counts)
+    else:
+        return 0
+
 class MacAddressMapping(db.Model):
     """ Member MAC address mapping
     
@@ -51,6 +69,16 @@ class MacAddressMapping(db.Model):
     @classmethod
     def get_by_mac(cls, address):
         return cls.all().filter('address =', address).get()
+
+class StatHandler(webapp.RequestHandler):
+    def get(self, name=None):
+        if name in ['members', 'guests']:
+            stat = get_stat(name)
+        else:
+            members = get_stat('members')
+            guests = get_stat('guests')
+            stat = members+guests
+        self.response.out.write(str(stat))
 
 class EntryHandler(webapp.RequestHandler):
     """ Entry point for the wifi app
@@ -110,21 +138,23 @@ class MacHandler(webapp.RequestHandler):
         guest = memcache.get(mac)
         if guest:
             self.response.out.write("%s,," % guest)
+            touch_stat('guests')
         else:
             mapping = MacAddressMapping.get_by_mac(mac)
             if mapping and not is_suspended(mapping.username):
                 self.response.out.write("%s,%s,%s" % (mapping.username, MEMBER_DOWNLOAD, MEMBER_UPLOAD))
+                touch_stat('members')
             else:
                 self.error(404)
                 self.response.out.write("not found")
-            
-        
+
 
 def main():
     application = webapp.WSGIApplication([
         ('/api/mac/(.+)', MacHandler),
         ('/guest', GuestHandler),
         ('/member', MemberHandler),
+        ('/stat/(.+)', StatHandler),
         ('/(.+)', EntryHandler),] ,debug=True)
     util.run_wsgi_app(application)
 
