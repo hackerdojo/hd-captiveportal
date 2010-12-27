@@ -17,10 +17,10 @@
           {% if error %}<span style="color: red; font-size: smaller;">{{error}}</span>{% endif %}
           <form method="post" action="/member">
             <table>
-              <tr><td class="label">Username:</td><td><input name="username" type="text" /></td></tr>
+              <tr><td class="label">Username:</td><td width="100%"><input class="textbox" name="username" type="text" /></td></tr>
               <tr><td class="label"> </td>
                 <td class="note" style="text-align:right;">@hackerdojo.com</td></tr>
-              <tr><td class="label">Password:</td><td><input name="password" type="password" /></td></tr>
+              <tr><td class="label">Password:</td><td width="100%"><input class="textbox" name="password" type="password" /></td></tr>
             </table>
             <input type="hidden" name="redirect" value="{{redirect}}" />
             <input type="hidden" name="mac" value="{{mac}}" />
@@ -31,7 +31,7 @@
         
         <div id="guest">
           <h2>Welcome to Hacker Dojo!</h2>
-          <p class="notice">This captive portal is a beta version of what will be on our new fiber connection coming in early 2011. This will allow us to easily provide unlimited access to members, throttled access to guests, and perhaps even eliminate the sign-in kiosk.<br /><br />
+          <p class="notice">You're using <strong>HackerDojo-gwifi</strong>, which is currently running a beta of our new captive portal that will be on our new fiber connection coming in early 2011. It will allow us to easily provide unlimited access to members, throttled access to guests, and perhaps even eliminate the sign-in kiosk.<br /><br />
             Email <a href="mailto:internet@hackerdojo.com">internet@hackerdojo.com</a> for questions or feedback.</p>
           <form method="post" action="/guest" style="text-align: center;">
             <input type="hidden" name="redirect" value="{{redirect}}" />

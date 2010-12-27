@@ -19,6 +19,8 @@ table .label { text-align: right; font-size: smaller;}
 
 form div { margin-top: 10px; }
 
+input.textbox { width: 100%; }
+
 h3 { margin-top: 0px;}
 
 .notice { background-color: lightyellow; border: 1px solid yellow; padding: 10px; font-size: smaller;}
