@@ -7,6 +7,8 @@ logger = logging.getLogger("pyrad")
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
+member_cache = {}
+
 class RadiusServer(server.Server):
     """ Simple RADIUS server bridge 
     
@@ -26,11 +28,23 @@ class RadiusServer(server.Server):
                 reply.AddAttribute((14122,8), download) # WISPr-Bandwidth-Max-Down
             if upload:
                 reply.AddAttribute((14122,7), upload) # WISPr-Bandwidth-Max-Up
+            if not '*' in user:
+                member_cache[mac_address] = user
             reply.code=packet.AccessAccept
             print "success: %s %s %s %s" % (mac_address, user, download, upload)
-        except:
-            reply.code=packet.AccessReject
-            print "fail: %s" % mac_address
+        except urllib2.HTTPError, e:
+            if e.getcode() == 404:
+                reply.code=packet.AccessReject
+                print "fail: %s" % mac_address
+            else:
+                if mac_address in member_cache:
+                    reply.AddAttribute((14122,8), '0')
+                    reply.AddAttribute((14122,7), '0')
+                    print "failover: %s %s" % (mac_address, member_cache[mac_address])
+                else:
+                    print "failover: %s" % mac_address
+                reply.code=packet.AccessAccept
+                
         self.SendReplyPacket(pkt.fd, reply)
 
 
