@@ -17,10 +17,10 @@ class RadiusServer(server.Server):
             reply.AddAttribute((14122,8), download) # WISPr-Bandwidth-Max-Down
             reply.AddAttribute((14122,7), upload) # WISPr-Bandwidth-Max-Up
             reply.code=packet.AccessAccept
-            print "success"
+            print "success: %s %s %s %s" % (mac_address, user, download, upload)
         except:
             reply.code=packet.AccessReject
-            print "fail"
+            print "fail: %s" % mac_address
         self.SendReplyPacket(pkt.fd, reply)
 
 

@@ -14,6 +14,8 @@ MEMBER_DOWNLOAD = 0
 MEMBER_UPLOAD = 0
 GUEST_DOWNLOAD = 1024
 GUEST_UPLOAD = 384
+#GUEST_TIMEOUT = 86400 # 24 hours
+GUEST_TIMEOUT = 60
 
 # Hacker Dojo Domain API helper with caching
 def dojo(path, force=False):
@@ -29,6 +31,9 @@ def dojo(path, force=False):
             cache_ttl = 10
         memcache.set(path, resp, cache_ttl)
     return resp
+
+def is_suspended(user):
+    return dojo('/users/%s' % user)['suspended']
 
 class MacAddressMapping(db.Model):
     address = db.StringProperty()
@@ -55,32 +60,47 @@ class MainHandler(webapp.RequestHandler):
     
     def post(self, data):
         client = AppsService(domain=DOMAIN)
-        data = urllib.unquote(data)
+        username = self.request.get('username')
+        mac = self.request.get('mac')
         try:
-            client.ClientLogin('%s@%s' % (self.request.get('username'), DOMAIN), self.request.get('password'))
-            if not dojo('/users/%s' % self.request.get('username'))['suspended']:
-                m = MacAddressMapping(address=self.request.get('mac'), username=self.request.get('username'))
+            client.ClientLogin('%s@%s' % (username, DOMAIN), self.request.get('password'))
+            existing = MacAddressMapping.get_by_mac(mac)
+            if existing and not is_suspended(username):
+                self.redirect(self.request.get('redirect') or 'http://hackerdojo.com')
+            elif not is_suspended(username):
+                m = MacAddressMapping(address=mac, username=username)
                 m.put()
                 self.redirect(self.request.get('redirect') or 'http://hackerdojo.com')
             else:
                 raise Exception()
         except:
-            self.redirect('/%s?fail=1' % data)
+            self.redirect('/%s?fail=1' % urllib.unquote(data))
 
+class GuestHandler(webapp.RequestHandler):
+    def post(self):
+        memcache.set(self.request.get('mac'), 'internet-guest', time=GUEST_TIMEOUT)
+        self.redirect(self.request.get('redirect') or 'http://hackerdojo.com')
+        
 
 class MacHandler(webapp.RequestHandler):
     def get(self, mac):
-        mapping = MacAddressMapping.get_by_mac(mac)
-        if not mapping or dojo('/users/%s' % mapping.username)['suspended']:
-            self.error(404)
-            self.response.out.write("not found")
+        guest = memcache.get(mac)
+        if guest:
+            self.response.out.write("%s,%s,%s" % (guest, GUEST_DOWNLOAD, GUEST_UPLOAD))
         else:
-            self.response.out.write("%s,%s,%s" % (mapping.username, MEMBER_DOWNLOAD, MEMBER_UPLOAD))
+            mapping = MacAddressMapping.get_by_mac(mac)
+            if mapping and not is_suspended(mapping.username):
+                self.response.out.write("%s,%s,%s" % (mapping.username, MEMBER_DOWNLOAD, MEMBER_UPLOAD))
+            else:
+                self.error(404)
+                self.response.out.write("not found")
+            
         
 
 def main():
     application = webapp.WSGIApplication([
         ('/api/mac/(.+)', MacHandler),
+        ('/guest', GuestHandler),
         ('/(.+)', MainHandler),],
                                          debug=True)
     util.run_wsgi_app(application)

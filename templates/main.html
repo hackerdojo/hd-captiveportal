@@ -10,5 +10,11 @@
       <input type="hidden" name="mac" value="{{mac}}">
       <input name="accept" type="submit" value="Continue">
     </form>
+    <br/>
+    <form method="post" action="/guest">
+      <input type="hidden" name="redirect" value="{{redirect}}">
+      <input type="hidden" name="mac" value="{{mac}}">
+      <input name="guest" type="submit" value="Guest">
+    </form>
   </body>
 </html>
