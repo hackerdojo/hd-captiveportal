@@ -8,6 +8,14 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
 class RadiusServer(server.Server):
+    """ Simple RADIUS server bridge 
+    
+    This is assumed to be used with the pfSense captive portal service, 
+    configured to send the MAC address of the client as the username. It
+    simply hits up the hd-wifi app to see if the MAC address can get online
+    and optionally with what bandwidth limitations.
+    """
+    
     def HandleAuthPacket(self, pkt):
         mac_address = pkt[1][0]
         reply=self.CreateReplyPacket(pkt)
@@ -33,4 +41,4 @@ logger.info("starting server...")
 try:
     srv.Run()
 except KeyboardInterrupt:
-    sys.exit()
+    sys.exit(0)

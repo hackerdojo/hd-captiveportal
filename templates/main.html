@@ -2,8 +2,8 @@
   <head>
   </head>
   <body>
-    {% if failure %}Try again{% endif %}
-    <form method="post">
+    {% if error %}Try again{% endif %}
+    <form method="post" action="/member">
       <input name="username" type="text">
       <input name="password" type="password">
       <input type="hidden" name="redirect" value="{{redirect}}">
@@ -14,7 +14,7 @@
     <form method="post" action="/guest">
       <input type="hidden" name="redirect" value="{{redirect}}">
       <input type="hidden" name="mac" value="{{mac}}">
-      <input name="guest" type="submit" value="Guest">
+      <input name="accept" type="submit" value="Guest">
     </form>
   </body>
 </html>
