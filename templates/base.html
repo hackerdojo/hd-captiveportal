@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <title>Hacker Dojo Internet Access</title>
+    <link href="/static/style.css" type="text/css" rel="stylesheet" />
+    {% block header %}{% endblock %}
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="header">
+        <img src="/static/dojo_icon.png" style="float: left; " />
+        <h1>Hacker Dojo</h1>
+        <h2>Internet Access</h2>
+      </div>
+      <div id="content">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </body>
+</html>

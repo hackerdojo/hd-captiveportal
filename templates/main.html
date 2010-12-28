@@ -1,17 +1,5 @@
-<html>
-  <head>
-    <title>Hacker Dojo Internet Access</title>
-    <link href="/static/style.css" type="text/css" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="wrapper">
-      <div id="header">
-        <img src="/static/dojo_icon.png" style="float: left; " />
-        <h1>Hacker Dojo</h1>
-        <h2>Internet Access</h2>
-      </div>
-      <div id="content">
-        
+{% extends 'base.html' %}
+{% block content %}
         <div id="member">
           <h3>Member Access</h3>
           {% if error %}<span style="color: red; font-size: smaller;">{{error}}</span>{% endif %}
@@ -31,15 +19,18 @@
         
         <div id="guest">
           <h2>Welcome to Hacker Dojo!</h2>
-          <p class="notice">You're using <strong>HackerDojo-gwifi</strong>, which is currently running a beta of our new captive portal that will be on our new fiber connection coming in early 2011. It will allow us to easily provide unlimited access to members, throttled access to guests, and perhaps even eliminate the sign-in kiosk.<br /><br />
+          <p class="notice">You're using <strong>HackerDojo-gwifi</strong>, which is currently running a beta of our new captive portal that will be on our new fiber connection coming in early 2011. It will allow us to easily provide unlimited access to members, throttle access to guests, and perhaps even eliminate the sign-in kiosk.<br /><br />
             Email <a href="mailto:internet@hackerdojo.com">internet@hackerdojo.com</a> for questions or feedback.</p>
           <form method="post" action="/guest" style="text-align: center;">
             <input type="hidden" name="redirect" value="{{redirect}}" />
             <input type="hidden" name="mac" value="{{mac}}" />
             <input name="accept" type="submit" value="Continue as Guest &rarr;" />
           </form>
+          <form method="post" action="/donate" style="text-align: center;">
+            <input type="hidden" name="redirect" value="{{redirect}}" />
+            <input type="hidden" name="mac" value="{{mac}}" />
+            <input name="accept" type="submit" value="Donate $10 for Day Pass &rarr;" />
+          </form>
         </div>
-      </div>
-    </div>
-  </body>
-</html>
+
+{% endblock %}

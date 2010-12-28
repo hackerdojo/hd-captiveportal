@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block header %}
+  <meta http-equiv="refresh" content="5;url={{redirect}}" />
+{% endblock %}
+{% block content %}
+
+        <div>
+          <h2>Thanks for donating!</h2>
+          <p>You now have member quality internet for the next {{hours}} hours. Enjoy! :)</p>
+          <p>Redirecting to <a href="{{redirect}}">{{redirect}}</a> in the next five seconds...</p>
+        </div>
+
+{% endblock %}
