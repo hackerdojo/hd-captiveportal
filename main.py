@@ -13,7 +13,7 @@ import time
 DOMAIN = 'hackerdojo.com'
 MEMBER_DOWNLOAD = 0
 MEMBER_UPLOAD = 0
-GUEST_TIMEOUT = 57600 # 16 hours
+GUEST_TIMEOUT = 43200 # 12 hours
 #GUEST_TIMEOUT = 60
 GUEST_NAME = 'internet-guest*'
 DEFAULT_REDIRECT = 'http://hackerdojo.com'
