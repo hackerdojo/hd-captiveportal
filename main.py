@@ -9,6 +9,7 @@ import logging
 import base64
 import urllib
 import time
+import string
 
 DOMAIN = 'hackerdojo.com'
 MEMBER_DOWNLOAD = 0
@@ -56,6 +57,14 @@ def get_stat(name, resolution=60):
     else:
         return 0
 
+class Login(db.Model):
+    """ A non log of logins. """
+    
+    address = db.StringProperty()
+    username = db.StringProperty()
+    created = db.DateTimeProperty(auto_now_add=True)
+
+
 class MacAddressMapping(db.Model):
     """ Member MAC address mapping
     
@@ -69,8 +78,29 @@ class MacAddressMapping(db.Model):
     created = db.DateTimeProperty(auto_now_add=True)
     
     @classmethod
+    def register_new_device(cls, address, username):
+        total_devices = 2
+        devices = cls.all().filter('username =', username).order("-created").fetch(100)
+        for d in devices[total_devices-1:]:
+          d.delete()
+        m = cls(address=address, username=username)
+        m.put()
+        return m
+    
+
+    @classmethod
     def get_by_mac(cls, address):
         return cls.all().filter('address =', address).get()
+
+
+class LogHandler(webapp.RequestHandler):
+    """ Show log  """
+    
+    def get(self):   
+        log = Login.all()
+        self.response.out.write(template.render('templates/log.html', {
+            'log': log
+        }))
 
 
 class EntryHandler(webapp.RequestHandler):
@@ -99,17 +129,18 @@ class MemberHandler(webapp.RequestHandler):
     
     def post(self):
         client = AppsService(domain=DOMAIN)
-        username = self.request.get('username')
+        username = string.split(self.request.get('username'),"@")[0].strip()
         mac = self.request.get('mac')
         redirect = self.request.get('redirect')
         try:
-            client.ClientLogin('%s@%s' % (username, DOMAIN), self.request.get('password'))
+            client.ClientLogin('%s@%s' % (username, DOMAIN), self.request.get('password').strip())
+            login = Login(username=username, address = mac)
+            login.put()
             existing = MacAddressMapping.get_by_mac(mac)
             if existing and not is_suspended(username):
                 self.redirect(redirect or DEFAULT_REDIRECT)
             elif not is_suspended(username):
-                m = MacAddressMapping(address=mac, username=username)
-                m.put()
+                MacAddressMapping.register_new_device(mac,username)
                 self.redirect(redirect or DEFAULT_REDIRECT)
             else:
                 raise Exception("Invalid account")
@@ -119,7 +150,7 @@ class MemberHandler(webapp.RequestHandler):
 class GuestHandler(webapp.RequestHandler):
     """ Form handler when connecting as a guest """
     
-    def post(self):
+    def get(self):
         memcache.set(self.request.get('mac'), GUEST_NAME, time=GUEST_TIMEOUT)
         self.redirect(self.request.get('redirect') or DEFAULT_REDIRECT)
 
@@ -139,7 +170,7 @@ class ResetHandler(webapp.RequestHandler):
 class DonateHandler(webapp.RequestHandler):
     """ Form handler when donating for a day pass """
     
-    def post(self):
+    def get(self):
         mac = self.request.get('mac')
         redirect = self.request.get('redirect') or DEFAULT_REDIRECT
         callback = "%s/donate/%s" % (self.request.host_url, base64.b64encode(','.join([mac, redirect])))
@@ -215,6 +246,7 @@ class DevHandler(webapp.RequestHandler):
 def main():
     application = webapp.WSGIApplication([
         ('/dev', DevHandler),
+        ('/log', LogHandler),
         ('/api/mac/(.+)', MacHandler),
         ('/api/stat/(.+)', StatHandler),
         ('/guest', GuestHandler),
