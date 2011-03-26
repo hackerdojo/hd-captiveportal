@@ -30,7 +30,7 @@ $clientmac = arp_get_mac_by_ip($clientip);
 <html>
   <body>
     <script type="text/javascript">
-      window.location.href = "https://hd-wifi.appspot.com/<?= base64_encode(str_replace(":", "", $clientmac) .','. $redirurl); ?>";
+      window.location.href = "https://hd-captiveportal.appspot.com/<?= base64_encode(str_replace(":", "", $clientmac) .','. $redirurl); ?>";
     </script>
   </body>
 </html>
