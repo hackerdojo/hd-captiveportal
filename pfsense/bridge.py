@@ -2,6 +2,7 @@ from pyrad import dictionary, packet, server
 import logging
 import sys
 import urllib2
+import threading
 
 logger = logging.getLogger("pyrad")
 logger.setLevel(logging.DEBUG)
@@ -19,33 +20,36 @@ class RadiusServer(server.Server):
     """
     
     def HandleAuthPacket(self, pkt):
-        mac_address = pkt[1][0]
-        reply=self.CreateReplyPacket(pkt)
-        try:
-            resp = urllib2.urlopen('http://hd-captiveportal.appspot.com/api/mac/%s' % mac_address)
-            user, download, upload = resp.read().split(',')
-            if download:
-                reply.AddAttribute((14122,8), download) # WISPr-Bandwidth-Max-Down
-            if upload:
-                reply.AddAttribute((14122,7), upload) # WISPr-Bandwidth-Max-Up
-            if not '*' in user:
-                member_cache[mac_address] = user
-            reply.code=packet.AccessAccept
-            print "accept: %s %s %s %s" % (mac_address, user, download, upload)
-        except (urllib2.URLError, urllib2.HTTPError), e:
-            if hasattr(e, 'code') and e.code == 404:
-                reply.code=packet.AccessReject
-                print "reject: %s" % mac_address
-            else:
-                if mac_address in member_cache:
-                    reply.AddAttribute((14122,8), '0')
-                    reply.AddAttribute((14122,7), '0')
-                    print "accept [failover]: %s %s" % (mac_address, member_cache[mac_address])
-                else:
-                    print "accept [failover]: %s" % mac_address
+        def _handle():
+            mac_address = pkt[1][0]
+            reply=self.CreateReplyPacket(pkt)
+            try:
+                resp = urllib2.urlopen('http://hd-captiveportal.appspot.com/api/mac/%s' % mac_address)
+                user, download, upload = resp.read().split(',')
+                if download:
+                    reply.AddAttribute((14122,8), download) # WISPr-Bandwidth-Max-Down
+                if upload:
+                    reply.AddAttribute((14122,7), upload) # WISPr-Bandwidth-Max-Up
+                if not '*' in user:
+                    member_cache[mac_address] = user
                 reply.code=packet.AccessAccept
-                
-        self.SendReplyPacket(pkt.fd, reply)
+                print "accept: %s %s %s %s" % (mac_address, user, download, upload)
+            except (urllib2.URLError, urllib2.HTTPError), e:
+                if hasattr(e, 'code') and e.code == 404:
+                    reply.code=packet.AccessReject
+                    print "reject: %s" % mac_address
+                else:
+                    if mac_address in member_cache:
+                        reply.AddAttribute((14122,8), '0')
+                        reply.AddAttribute((14122,7), '0')
+                        print "accept [failover]: %s %s" % (mac_address, member_cache[mac_address])
+                    else:
+                        print "accept [failover]: %s" % mac_address
+                    reply.code=packet.AccessAccept
+                    
+            self.SendReplyPacket(pkt.fd, reply)
+        thread = threading.Thread(target=_handle)
+        thread.start()
 
 
 srv=RadiusServer(addresses=[''], dict=dictionary.Dictionary("dictionary"))
