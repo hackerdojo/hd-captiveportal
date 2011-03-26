@@ -8,8 +8,16 @@ p {margin-top:.5em}
 h2 { font-family: arial, sans-serif; font-weight:normal; font-size:24px; width:600px; margin:0 auto; text-align:center }
 h3 {margin-bottom:.5em; margin-top:1.5em}
 
-td,body,p,h2 { font-family: 'Cabin', arial, serif; }
+td,body,p,h2 { 
+  font-family: 'Cabin', arial, serif;
+}
 
+@font-face {
+  font-family: 'Cabin';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Cabin Regular'), local('Cabin-Regular'), url('/static/Cabin-Regular.woff') format('woff');
+}
 
 .homeinput {
   font: 13px "Lucida Grande",Arial,Sans-serif;
