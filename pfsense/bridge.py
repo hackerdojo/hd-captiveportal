@@ -22,7 +22,7 @@ class RadiusServer(server.Server):
         mac_address = pkt[1][0]
         reply=self.CreateReplyPacket(pkt)
         try:
-            resp = urllib2.urlopen('http://hd-wifi.appspot.com/api/mac/%s' % mac_address)
+            resp = urllib2.urlopen('http://hd-captiveportal.appspot.com/api/mac/%s' % mac_address)
             user, download, upload = resp.read().split(',')
             if download:
                 reply.AddAttribute((14122,8), download) # WISPr-Bandwidth-Max-Down
