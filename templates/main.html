@@ -1,36 +1,66 @@
 {% extends 'base.html' %}
 {% block content %}
-        <div id="member">
-          <h3>Member Access</h3>
-          {% if error %}<span style="color: red; font-size: smaller;">{{error}}</span>{% endif %}
-          <form method="post" action="/member">
-            <table>
-              <tr><td class="label">Username:</td><td width="100%"><input class="textbox" name="username" type="text" /></td></tr>
-              <tr><td class="label"> </td>
-                <td class="note" style="text-align:right;">@hackerdojo.com</td></tr>
-              <tr><td class="label">Password:</td><td width="100%"><input class="textbox" name="password" type="password" /></td></tr>
-            </table>
-            <input type="hidden" name="redirect" value="{{redirect}}" />
-            <input type="hidden" name="mac" value="{{mac}}" />
-            <div style="text-align: center; margin-bottom: 10px;"><input name="accept" type="submit" value="Continue as Member &rarr;" /></div>
-          </form>
-          <div class="note">We'll remember your MAC address, so you shouldn't see this screen again.</div>
-        </div>
-        
-        <div id="guest">
-          <h2>Welcome to Hacker Dojo!</h2>
-          <p class="notice">You're using <strong>HackerDojo-gwifi</strong>, which is currently running a beta of our new captive portal that will be on our new fiber connection coming in early 2011. It will allow us to easily provide unlimited access to members, throttle access to guests, and perhaps even eliminate the sign-in kiosk.<br /><br />
-            Email <a href="mailto:internet@hackerdojo.com">internet@hackerdojo.com</a> for questions or feedback.</p>
-          <form method="post" action="/guest" style="text-align: center;">
-            <input type="hidden" name="redirect" value="{{redirect}}" />
-            <input type="hidden" name="mac" value="{{mac}}" />
-            <input name="accept" type="submit" value="Continue as Guest &rarr;" />
-          </form>
-          <form method="post" action="/donate" style="text-align: center;">
-            <input type="hidden" name="redirect" value="{{redirect}}" />
-            <input type="hidden" name="mac" value="{{mac}}" />
-            <input name="accept" type="submit" value="Donate $10 for Day Pass &rarr;" />
-          </form>
-        </div>
 
+  <div class="container_12 content">
+      <div class="grid_12 alpha omega"> 
+                  
+          <img border=0 src="/static/dojo400.png" style="margin:2em" width="400" height="141" />
+          <h2><b>FIBER Internet has arrived!</b>  Members, login below to gain full access to your new connection.  Guests may have unlimited free usage of our slower connection.</h2>
+          
+      </div> 
+
+      <br>
+      
+      <div class="grid_6 alpha "> 
+          
+          <div style="margin:4em">
+            <center>
+              <img border=0 src="/static/speed4.png" width="350" height="249"/>
+              <p style="font-size:12px"><b>Fig. 1.</b> Members get full <b>100Mbps</b> fiber Internet.</p>
+            </center>
+          </div>
+          
+      </div> 
+      
+       <div class="grid_5  omega"> 
+      
+         
+         <div style="margin-top:2em">
+           <h3>Members</h3>
+           <form method="post" action="/member" class="memberlogin">
+           
+              {% if error %}<p style="color: red; font-size: smaller; font-weight:bold">{{error}}</p>{% endif %}
+              <table cellpadding=0 cellspacing=1 border="0" width="100%">
+                <tr><td class="label">Username:</td><td width="100%"><input class="textbox homeinput" name="username" type="text" placeholder="ex: joe.smith" /></td></tr>
+                <tr><td class="label">Password:</td><td width="100%"><input class="textbox homeinput" name="password" type="password" /></td></tr>
+              </table>
+              <input type="hidden" name="redirect" value="{{redirect}}" />
+              <input type="hidden" name="mac" value="{{mac}}" />
+              <div style="text-align: center; margin-top: 8px;"><input name="accept" type="submit" value="Login" /></div>
+            </form>
+          </div>
+          
+          <p class="note"> Members: We'll remember your MAC address, so you shouldn't see this screen again.</p>
+                              
+          <h3>Day Pass</h3>
+          <p>Guests may <a href="/donate?mac={{mac|urlencode}}&redirect={{redirect|urlencode}}">donate $10</a> for a day pass.</p>
+          
+          <h3>Guests</h3>
+          <p>Guests are also welcome to our <a href="/guest?mac={{mac|urlencode}}&redirect={{redirect|urlencode}}">slower free connection</a>.</p>
+          
+          <br/><br/>
+
+          
+        </div> 
+  
+    <div class="clearfix">&nbsp;</div>
+        <div class="grid_12"> 
+          
+
+          
+      </div> 
+    
+  <div class="clearfix">&nbsp;</div>
+  </div> 
+ 
 {% endblock %}

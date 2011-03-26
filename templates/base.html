@@ -1,19 +1,17 @@
-<html>
-  <head>
-    <title>Hacker Dojo Internet Access</title>
-    <link href="/static/style.css" type="text/css" rel="stylesheet" />
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+  <head> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+    <link href='/static/960gs.css' rel='stylesheet' type='text/css'/> 
+    <link href='/static/style.css' rel='stylesheet' type='text/css'/> 
+    <link href='http://fonts.googleapis.com/css?family=Cabin' rel='stylesheet' type='text/css'>
+
+    <title>Hacker Dojo Internet</title> 
     {% block header %}{% endblock %}
-  </head>
-  <body>
-    <div id="wrapper">
-      <div id="header">
-        <img src="/static/dojo_icon.png" style="float: left; " />
-        <h1>Hacker Dojo</h1>
-        <h2>Internet Access</h2>
-      </div>
-      <div id="content">
-        {% block content %}{% endblock %}
-      </div>
-    </div>
-  </body>
+   </head> 
+<body> 
+ 
+{% block content %}{% endblock %}
+
+</body>
 </html>

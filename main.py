@@ -119,14 +119,14 @@ class MemberHandler(webapp.RequestHandler):
 class GuestHandler(webapp.RequestHandler):
     """ Form handler when connecting as a guest """
     
-    def post(self):
+    def get(self):
         memcache.set(self.request.get('mac'), GUEST_NAME, time=GUEST_TIMEOUT)
         self.redirect(self.request.get('redirect') or DEFAULT_REDIRECT)
 
 class DonateHandler(webapp.RequestHandler):
     """ Form handler when donating for a day pass """
     
-    def post(self):
+    def get(self):
         mac = self.request.get('mac')
         redirect = self.request.get('redirect') or DEFAULT_REDIRECT
         callback = "%s/donate/%s" % (self.request.host_url, base64.b64encode(','.join([mac, redirect])))
