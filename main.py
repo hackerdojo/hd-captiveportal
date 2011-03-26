@@ -123,6 +123,19 @@ class GuestHandler(webapp.RequestHandler):
         memcache.set(self.request.get('mac'), GUEST_NAME, time=GUEST_TIMEOUT)
         self.redirect(self.request.get('redirect') or DEFAULT_REDIRECT)
 
+class ResetHandler(webapp.RequestHandler):
+    """ Resets guest MAC mapping so they see the captive portal again """
+
+    def get(self):
+        # Reusing the dev handler template to capture the MAC address
+        self.response.out.write(template.render('templates/dev.html', {}))
+
+    def post(self):
+        memcache.delete(self.request.get('mac'))
+        self.redirect('/%s' % base64.b64encode(','.join([
+            self.request.get('mac'), 
+            self.request.get('redirect')])))
+
 class DonateHandler(webapp.RequestHandler):
     """ Form handler when donating for a day pass """
     
@@ -205,6 +218,7 @@ def main():
         ('/api/mac/(.+)', MacHandler),
         ('/api/stat/(.+)', StatHandler),
         ('/guest', GuestHandler),
+        ('/reset', ResetHandler),
         ('/donate/(.+)', DonateCallbackHandler),
         ('/donate', DonateHandler),
         ('/member', MemberHandler),
