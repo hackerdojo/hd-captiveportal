@@ -5,6 +5,7 @@ from google.appengine.api import memcache
 from google.appengine.api import urlfetch
 from django.utils import simplejson
 from gdata.apps.service import AppsService
+import gdata.service
 import logging
 import base64
 import urllib
@@ -119,7 +120,9 @@ class EntryHandler(webapp.RequestHandler):
             self.response.out.write(template.render('templates/main.html', {
                 'redirect': redirect,
                 'mac': mac,
-                'error': self.request.get('error')
+                'error': self.request.get('error'),
+                'captcha_url': self.request.get('captcha_url'),
+                'captcha_token': self.request.get('captcha_token'),
             }))
         except:
             self.error(400)
@@ -134,8 +137,11 @@ class MemberHandler(webapp.RequestHandler):
         mac = self.request.get('mac')
         redirect = self.request.get('redirect')
         try:
-            client.ClientLogin('%s@%s' % (username, DOMAIN), self.request.get('password').strip())
-            login = Login(username=username, address = mac)
+            client.ClientLogin('%s@%s' % (username, DOMAIN), 
+                password=self.request.get('password').strip(),
+                captcha_token=self.request.get('captcha_token'),
+                captcha_response=self.request.get('captcha_response'))
+            login = Login(username=username, address=mac)
             login.put()
             existing = MacAddressMapping.get_by_mac(mac)
             if existing and not is_suspended(username):
@@ -146,7 +152,12 @@ class MemberHandler(webapp.RequestHandler):
             else:
                 raise Exception("Invalid account")
         except Exception, e:
-            self.redirect('/%s?error=%s' % (base64.b64encode(','.join([mac, redirect])), e.message))
+            params = {'error': e.message}
+            if isinstance(e, gdata.service.CaptchaRequired):
+                params['captcha_url'] = client.captcha_url
+                params['captcha_token'] = client.captcha_token
+            data = base64.b64encode(','.join([mac, redirect]))
+            self.redirect('/%s?%s' % (data, urllib.urlencode(params)))
 
 class GuestHandler(webapp.RequestHandler):
     """ Form handler when connecting as a guest """
