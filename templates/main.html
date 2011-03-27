@@ -39,7 +39,7 @@
               <table cellpadding=0 cellspacing=1 border="0" width="100%">
                 <tr><td class="label">Username:</td><td width="100%"><input class="textbox homeinput" name="username" type="text" placeholder="ex: joe.smith" /></td></tr>
                 <tr><td class="label">Password:</td><td width="100%"><input class="textbox homeinput" name="password" type="password" /></td></tr>
-                {% if captcha_url %}
+                {% if captcha_token %}
                 <tr><td class="label" valign="top">Captcha:</td><td width="100%"><input class="textbox homeinput" name="captcha_response" type="text" /><br /><img src="{{captcha_url}}" /></td></tr>
                 <input type="hidden" name="captcha_token" value="{{captcha_token}}" />
                 {% endif %}
