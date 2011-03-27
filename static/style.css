@@ -54,3 +54,6 @@ td,body,p,h2 {
 }
 
 a {color:#b61e44}
+
+#footerlinks {font-size:12px; text-align:center; font-family: arial, sans-serif}
+#footerlinks, #footerlinks a {color:#666; text-decoration:none}
