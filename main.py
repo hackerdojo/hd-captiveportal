@@ -104,7 +104,7 @@ class LogHandler(webapp.RequestHandler):
 
 
 class EntryHandler(webapp.RequestHandler):
-    """ Entry point for the wifi app
+    """ Entry point for the captive portal app
     
     The pfSense Captive Portal page (as defined in pfsense/portal.php) will
     redirect to this endpoint. It will encode the user's MAC address and 
@@ -115,6 +115,7 @@ class EntryHandler(webapp.RequestHandler):
         try:
             data = urllib.unquote(data)
             mac, redirect = base64.b64decode(data).split(',')
+            self.response.headers.add_header('Set-Cookie', 'mac=%s;' % mac)
             self.response.out.write(template.render('templates/main.html', {
                 'redirect': redirect,
                 'mac': mac,
@@ -158,8 +159,12 @@ class ResetHandler(webapp.RequestHandler):
     """ Resets guest MAC mapping so they see the captive portal again """
 
     def get(self):
-        # Reusing the dev handler template to capture the MAC address
-        self.response.out.write(template.render('templates/dev.html', {}))
+        if self.request.cookies.has_key('mac'):
+            mac = self.request.cookies['mac']
+            memcache.delete(mac)
+            self.redirect('/%s' % base64.b64encode(','.join([mac, DEFAULT_REDIRECT])))
+        else:
+            self.response.out.write(template.render('templates/reset.html', {}))
 
     def post(self):
         memcache.delete(self.request.get('mac'))
@@ -232,25 +237,14 @@ class StatHandler(webapp.RequestHandler):
             stat = members+guests
         self.response.out.write(str(stat))
 
-class DevHandler(webapp.RequestHandler):
-    """ Convenience entry point for local development """
-    
-    def get(self):
-        self.response.out.write(template.render('templates/dev.html', {}))
-    
-    def post(self):
-        self.redirect('/%s' % base64.b64encode(','.join([
-            self.request.get('mac'), 
-            self.request.get('redirect')])))
 
 def main():
     application = webapp.WSGIApplication([
-        ('/dev', DevHandler),
+        ('/', ResetHandler),
         ('/log', LogHandler),
         ('/api/mac/(.+)', MacHandler),
         ('/api/stat/(.+)', StatHandler),
         ('/guest', GuestHandler),
-        ('/reset', ResetHandler),
         ('/donate/(.+)', DonateCallbackHandler),
         ('/donate', DonateHandler),
         ('/member', MemberHandler),
