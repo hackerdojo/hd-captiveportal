@@ -8,6 +8,10 @@ logger = logging.getLogger("pyrad")
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
+# The member cache is a mapping of mac address to member username.
+# Any new mac address will override the last for a given member.
+# This is used only in cases when App Engine can't be reached,
+# ensuring that known/cached members will be ensured full access.
 member_cache = {}
 
 class RadiusServer(server.Server):
