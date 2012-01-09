@@ -99,7 +99,7 @@ class LogHandler(webapp.RequestHandler):
     """ Show log  """
     
     def get(self):   
-        log = Login.all()
+        log = Login.all().order("-created").fetch(100)
         self.response.out.write(template.render('templates/log.html', {
             'log': log
         }))
