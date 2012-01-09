@@ -53,7 +53,7 @@ class RadiusServer(server.Server):
 
 
 srv=RadiusServer(addresses=[''], dict=dictionary.Dictionary("dictionary"))
-srv.hosts["127.0.0.1"]=server.RemoteHost("127.0.0.1", "secret", "localhost")
+srv.hosts["192.168.1.1"]=server.RemoteHost("192.168.1.1", "secret", "localhost")
 
 logger.info("starting server...")
 try:

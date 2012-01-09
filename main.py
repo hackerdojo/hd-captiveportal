@@ -13,6 +13,7 @@ import time
 import string
 
 DOMAIN = 'hackerdojo.com'
+TOTAL_DEVICES = 2
 MEMBER_DOWNLOAD = 0
 MEMBER_UPLOAD = 0
 GUEST_TIMEOUT = 43200 # 12 hours
@@ -80,10 +81,10 @@ class MacAddressMapping(db.Model):
     
     @classmethod
     def register_new_device(cls, address, username):
-        total_devices = 2
         devices = cls.all().filter('username =', username).order("-created").fetch(100)
-        for d in devices[total_devices-1:]:
-          d.delete()
+        if len(devices) >= TOTAL_DEVICES:
+          for d in devices[TOTAL_DEVICES-1:]:
+            d.delete()
         m = cls(address=address, username=username)
         m.put()
         return m
