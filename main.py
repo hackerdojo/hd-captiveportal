@@ -61,7 +61,6 @@ def get_stat(name, resolution=60):
 
 class Login(db.Model):
     """ A non log of logins. """
-    
     address = db.StringProperty()
     username = db.StringProperty()
     created = db.DateTimeProperty(auto_now_add=True)
@@ -69,26 +68,25 @@ class Login(db.Model):
 
 class MacAddressMapping(db.Model):
     """ Member MAC address mapping
-    
+
     Simple record indicating a user successfully authenticated as a member
     using a particular MAC address. This is used when the RADIUS bridge asks
     if a MAC address can get online.
     """
-    
+
     address = db.StringProperty()
     username = db.StringProperty()
     created = db.DateTimeProperty(auto_now_add=True)
-    
+
     @classmethod
     def register_new_device(cls, address, username):
         devices = cls.all().filter('username =', username).order("-created").fetch(100)
         if len(devices) >= TOTAL_DEVICES:
-          for d in devices[TOTAL_DEVICES-1:]:
-            d.delete()
+            for d in devices[TOTAL_DEVICES-1:]:
+                d.delete()
         m = cls(address=address, username=username)
         m.put()
         return m
-    
 
     @classmethod
     def get_by_mac(cls, address):
@@ -97,7 +95,7 @@ class MacAddressMapping(db.Model):
 
 class LogHandler(webapp.RequestHandler):
     """ Show log  """
-    
+
     def get(self):   
         log = Login.all().order("-created").fetch(100)
         self.response.out.write(template.render('templates/log.html', {
@@ -107,13 +105,13 @@ class LogHandler(webapp.RequestHandler):
 
 class EntryHandler(webapp.RequestHandler):
     """ Entry point for the captive portal app
-    
+
     The pfSense Captive Portal page (as defined in pfsense/portal.php) will
     redirect to this endpoint. It will encode the user's MAC address and 
     final redirect URL as a base64 encoded string as part of the path.
     """
-    
-    def get(self, data):   
+
+    def get(self, data):
         try:
             data = urllib.unquote(data)
             mac, redirect = base64.b64decode(data).split(',')
@@ -128,10 +126,10 @@ class EntryHandler(webapp.RequestHandler):
         except:
             self.error(400)
             self.response.out.write("bad request")
-    
+
 class MemberHandler(webapp.RequestHandler):
     """ Form handler when connecting as a member """
-    
+
     def post(self):
         client = AppsService(domain=DOMAIN)
         username = string.split(self.request.get('username'),"@")[0].strip()
@@ -162,13 +160,13 @@ class MemberHandler(webapp.RequestHandler):
 
 class GuestHandler(webapp.RequestHandler):
     """ Form handler when connecting as a guest """
-    
+
     def get(self):
         memcache.set(self.request.get('mac'), GUEST_NAME, time=GUEST_TIMEOUT)
         self.redirect(self.request.get('redirect') or DEFAULT_REDIRECT)
 
 class ResetHandler(webapp.RequestHandler):
-    """ Resets guest MAC mapping so they see the captive portal again """
+    """ Resets *guest* MAC mapping so they see the captive portal again """
 
     def get(self):
         if self.request.cookies.has_key('mac'):
@@ -186,7 +184,7 @@ class ResetHandler(webapp.RequestHandler):
 
 class DonateHandler(webapp.RequestHandler):
     """ Form handler when donating for a day pass """
-    
+
     def get(self):
         mac = self.request.get('mac')
         redirect = self.request.get('redirect') or DEFAULT_REDIRECT
@@ -197,19 +195,19 @@ class DonateHandler(webapp.RequestHandler):
 
 class DonateCallbackHandler(webapp.RequestHandler):
     """ Callback handler for PayPal IPN (POST) and return from PayPal (GET) """
-    
+
     def post(self, data):
         data = urllib.unquote(data)
         mac, redirect = base64.b64decode(data).split(',')
         if self._validate_ipn() and self.request.get('payment_status').lower() == 'completed':
             memcache.set(mac, DAYPASS_NAME, time=GUEST_TIMEOUT)
         self.get(data)
-    
+
     def _validate_ipn(self):
         resp = urlfetch.fetch('https://www.paypal.com/cgi-bin/webscr', method="POST",
             payload="cmd=_notify-validate&%s" % self.request.body)
         return "VERIFIED" in resp.content
-    
+
     def get(self, data):
         data = urllib.unquote(data)
         mac, redirect = base64.b64decode(data).split(',')
@@ -219,7 +217,7 @@ class DonateCallbackHandler(webapp.RequestHandler):
 
 class MacHandler(webapp.RequestHandler):
     """ Endpoint used by RADIUS bridge """
-    
+
     def get(self, mac):
         guest = memcache.get(mac)
         if guest:
@@ -239,7 +237,7 @@ class MacHandler(webapp.RequestHandler):
 
 class StatHandler(webapp.RequestHandler):
     """ Simple endpoint for getting current members/guests using Internet """
-    
+
     def get(self, name=None):
         if name in ['members', 'guests']:
             stat = get_stat(name)
