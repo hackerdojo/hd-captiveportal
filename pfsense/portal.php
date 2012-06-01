@@ -23,7 +23,7 @@ if ($_POST['redirurl'])
     $redirurl = $_POST['redirurl'];
 
 $clientip = $_SERVER['REMOTE_ADDR'];
-$clientmac = arp_get_mac_by_ip($clientip);    
+$clientmac = arp_get_mac_by_ip($clientip);
 
 ?>
 
