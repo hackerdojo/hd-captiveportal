@@ -49,6 +49,45 @@ before checking for member MacAddressMappings. It will return
 appropriately depending on which they are, including their bandwidth
 limitations.
 
+Lastly, regarding device limits, we limit you to a number of devices
+based on MAC address. If you login at your device limit, it will
+succeed, but the MacAddressMapping for your oldest device will be
+removed. This does not mean it will stop working! pfSense will continue
+to allow it until the session expires and it has to check RADIUS again.
+Sessions expire most likely after an idle timeout set in pfSense.
+
+## The DNS problem
+
+Unfortunately, since our captive portal login page is out on the
+Internet, we need to let the captive portal always allow it. There is an
+Allowed IPs list and an Allowed Hostnames list in pfSense. Ideally, we'd just
+have hd-captiveportal.appspot.com in Allowed Hostnames, but last we
+checked, this new feature was not working.
+
+We have to use an IP address for the App Engine app. The IP that App
+Engine apps resolve to can change, which makes it difficult to allow a
+known IP. So we first override the DNS provided by the router to force a
+known working IP for App Engine.
+
+Now we've created a new problem. If the user is using custom DNS instead
+of DHCP assigned, they won't get this IP address. This breaks their
+Internet access because they can't get out but can't get to our captive
+portal page to authorize. 
+
+One possible solution is to set up a routing rule to route all DNS
+traffic to our DNS server provided by pfSense. However, in practice,
+these rules in pfSense happen *after* the captive portal. So they work
+when you're authorized, but don't seem to be in effect before you've
+authorized. That means this won't work.
+
+The only remaining alternative is to just allow the IP of all known DNS
+servers that one might manually set their device to use. This is a
+reasonable approach because if people are setting their DNS manually,
+it's likely to a well-known IP like 4.4.4.4 or 8.8.8.8 ... so we allow
+these in our Allowed IPs list. Any time somebody can't access, we can
+ask them what manual DNS server they're using and add it to the list
+until we have decent coverage. 
+
 # Debugging
 
 ## Resetting your device
