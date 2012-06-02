@@ -18,8 +18,8 @@ cd pyrad-1.1
 python setup.py install
 mkdir -p /home/captiveportal
 cd /home/captiveportal
-fetch https://github.com/progrium/hd-captiveportal/raw/master/pfsense/dictionary
-fetch https://github.com/progrium/hd-captiveportal/raw/master/pfsense/bridge.py
+fetch https://github.com/hackerdojo/hd-captiveportal/raw/master/pfsense/dictionary
+fetch https://github.com/hackerdojo/hd-captiveportal/raw/master/pfsense/bridge.py
 screen python bridge.py
 
 
